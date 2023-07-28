@@ -75,9 +75,22 @@ class ChargeController extends Controller
 
     public function showCharges(Request $request): JsonResponse
     {
+        $charges = Charge::where('user_id', $request->user()->id)
+            ->whereIn('status', [1, 3])
+            ->paginate(10);
+        return response()->json(['message' => 'success', 'charges' => $charges], 200);
     }
 
     public function removePendingCharge(Request $request, Charge $charge): JsonResponse
     {
+        if ($charge->user_id !== $request->user()->id || $charge->status === 0) {
+            return response()->json(['message' => 'Intended charge is not exists for you'], 404);
+        }
+        if ($charge->status === 1) {
+            return response()->json(['message' => 'You cannot remove purchased charge'], 403);
+        }
+
+        $charge->update(['status' => 0]);
+        return response()->json(['message' => 'success']);
     }
 }
