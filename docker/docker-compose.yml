@@ -2,9 +2,13 @@ version: '3.8'
 
 services:
   omp_app:
-    image: docker.io/bitnami/laravel
+    image: omp_app
     restart: always
     container_name: omp_app
+    build:
+      context: ../app
+      dockerfile: ../app/Dockerfile
+      target: base
     ports:
       - 80:8000
     environment:
