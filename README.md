@@ -19,3 +19,11 @@ Default env configs is compatible with the default configuration of database and
 cd docker
 docker-compose up
 ```
+
+## Run Tests
+
+
+```bash
+docker exec -it omp_app sh -c "php artisan test"
+```
+Before run tests be sure that "omp_app" container is running.
