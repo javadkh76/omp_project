@@ -20,6 +20,8 @@ class UserController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $user = User::where('mobile', $request->mobile)->where('status', 1)->first();
+        if(!$user)
+            return response()->json(['message'=>'Intended user not found'], 404);
         if (Hash::check($request->password, $user->password)) {
             $token = $user->createToken('access token')->plainTextToken;
             return response()->json(['message' => 'success', 'token' => $token]);

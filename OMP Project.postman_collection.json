@@ -69,7 +69,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"09109177830\",\n    \"password\": \"testPass\"\n\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -135,7 +135,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "2|L2UJJG3KoqhIphtgb1FnfsfZcImLe5aXnj2CXmOm",
+									"value": "1|3oV4anYj4qKm8u6jnrXSukhZnDKkz9VYckVo4zcI",
 									"type": "string"
 								}
 							]
@@ -288,7 +288,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "1|EuBCbs0TM37lSwifU5HmzqP78Njqgd8NVonuf6AW",
+									"value": "1|3oV4anYj4qKm8u6jnrXSukhZnDKkz9VYckVo4zcI",
 									"type": "string"
 								}
 							]
