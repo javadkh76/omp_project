@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\CardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CardController;
+use App\Http\Controllers\ChargeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +25,9 @@ Route::controller(CardController::class)->middleware('auth:sanctum')->group(func
     Route::post('/cards', 'addCard');
     Route::delete('/cards/{card}', 'removeCard');
 });
+Route::controller(ChargeController::class)->middleware('auth:sanctum')->group(function(){
+    Route::get('/charges', 'showCharges');
+    Route::post('/charges', 'createCharge');
+    Route::delete('/charges/{charge}', 'removePendingCharge');
+});
+Route::any('/charges/verify/{id}', [ChargeController::class, 'verify']);
