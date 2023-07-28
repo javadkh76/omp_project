@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\ChargeController;
+use App\Http\Requests\CreateChargeRequest;
 use App\Models\Charge;
 use App\Models\Transaction;
 use App\Models\User;
@@ -68,5 +69,42 @@ class ChargeControllerTest extends TestCase
         $this->assertEquals(11500, $updatedUser->balance);
         $this->assertEquals(1, $updatedCharge->status);
         $this->assertEquals(1, $updateTransaction->status);
+    }
+
+    public function test_the_user_can_create_charge_request_when_first_payment_gateway_failed(): void
+    {
+        Http::fake([
+            // Stub a JSON response for GitHub endpoints...
+            'https://api.idpay.ir/v1.1/payment' => Http::response([
+            ], 400),
+            'https://ipg.vandar.io/api/v3/send' => Http::response([
+                'token' => Str::random(35)
+            ], 200),
+        ]);
+
+        $user = User::factory()->create();
+        $card = Card::factory()->create(['user_id' => $user->id]);
+
+        $request = new class($user, $card->id) extends CreateChargeRequest {
+            public int $amount = 10000;
+
+            public function __construct(public object $user, public int $card_id)
+            {
+            }
+
+            public function user($guard = null): object
+            {
+                return $this->user;
+            }
+        };
+
+        $chargeController = new ChargeController();
+        $chargeController->createCharge($request);
+
+        $charge = Charge::where('user_id', $user->id)->where('amount', 10000)->first();
+        $transaction = $charge->transactions()->first();
+
+        $this->assertNotNull($charge);
+        $this->assertNotNull($transaction);
     }
 }

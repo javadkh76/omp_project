@@ -39,7 +39,7 @@ class IDPay implements Payment
             return false;
         } catch (\Throwable $e) {
             Log::error($e);
-            throw new PaymentEndPointException();
+            return false;
         }
     }
 
