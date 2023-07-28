@@ -44,9 +44,46 @@ class VandarPayment implements Payment
 
     public function inquiry(string $paymentId, string $chargeId): bool
     {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->retry(2, 100)->post('https://ipg.vandar.io/api/v3/transaction', [
+                'api_key' => env('VANDAR_API_KEY'),
+                'token' => $paymentId
+            ]);
+            if ($response->status() === 200) {
+                $body = $response->json();
+                if ($body['status'] === 1 && $body['code'] === 1) {
+                    $this->refNumber = $body['refnumber'];
+                    $this->trackingCode = $body['trackingCode'];
+                    return true;
+                }
+            }
+            return false;
+        } catch (\Throwable $e) {
+            Log::error($e);
+            throw new PaymentEndPointException();
+        }
     }
 
     public function verify(string $paymentId, string $chargeId): bool
     {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->retry(2, 100)->post('https://ipg.vandar.io/api/v3/verify', [
+                'api_key' => env('VANDAR_API_KEY'),
+                'token' => $paymentId
+            ]);
+            if ($response->status() === 200) {
+                $body = $response->json();
+                $this->wage = $body['wage'];
+                return true;
+            }
+            return false;
+        } catch (\Throwable $e) {
+            Log::error($e);
+            throw new PaymentEndPointException();
+        }
     }
 }

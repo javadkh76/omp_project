@@ -6,6 +6,7 @@ use App\Actions\CreateChargeActions;
 use App\Actions\Payment\IDPay;
 use App\Actions\Payment\Jibit;
 use App\Actions\Payment\VandarPayment;
+use App\Actions\VerifyChargeActions;
 use App\Models\Card;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -51,6 +52,25 @@ class ChargeController extends Controller
 
     public function verify(string $id): JsonResponse
     {
+        $charge = Charge::where('status', 3)->where('id', $id)->first();
+        if (!$charge) {
+            return response()->json(['message' => 'Charge request not found'], 404);
+        }
+
+        $transaction = VerifyChargeActions::findValidTransaction($charge);
+        if (!$transaction) {
+            return response()->json(['message' => 'Transaction is expired'], 404);
+        }
+
+        $paymentGateway = VerifyChargeActions::inquiryPayment($this->paymentGateways, $transaction, $charge->id);
+
+        $verifyResult = $paymentGateway->verify($transaction->payment_id, $charge->id);
+        if (!$verifyResult) {
+            return response()->json(['message' => 'Transaction is failed'], 500);
+        }
+        VerifyChargeActions::commitChargePayment($charge, $transaction->id, $paymentGateway);
+
+        return response()->json(['message' => 'success']);
     }
 
     public function showCharges(Request $request): JsonResponse
